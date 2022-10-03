@@ -14,6 +14,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _controller = TextEditingController();
   final _timeController = TextEditingController();
+  final _updateController = TextEditingController();
 
   List habitList = [
     ["coding", false, 0, 1],
@@ -51,6 +52,27 @@ class _HomePageState extends State<HomePage> {
         builder: (context) {
           return AlertDialog(
             title: Text("Setting for " + habitList[index][0]),
+            actions: [
+              TextField(
+                controller: _updateController,
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    habitList[index].add();
+                  });
+                  _updateController.clear();
+                  Navigator.of(context).pop();
+                },
+                child: Text('Save'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Cancle'),
+              ),
+            ],
           );
         });
   }
@@ -111,6 +133,7 @@ class _HomePageState extends State<HomePage> {
         }),
       ),
       floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.black,
           onPressed: () {
             addNewHabit();
           },
