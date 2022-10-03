@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:habit_tracker/util/add_habit.dart';
 import 'package:habit_tracker/util/habit_tile.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,6 +12,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final _controller = TextEditingController();
+  final _timeController = TextEditingController();
+
   List habitList = [
     ["coding", false, 0, 1],
     ["Read", false, 0, 10],
@@ -21,13 +25,11 @@ class _HomePageState extends State<HomePage> {
   void habitStarted(int index) {
     var startTime = DateTime.now();
     int spentTime = habitList[index][2];
-    setState(
-      () {
-        habitList[index][1] = !habitList[index][1];
-      },
-    );
+    setState(() {
+      habitList[index][1] = !habitList[index][1];
+    });
     if (habitList[index][1]) {
-      Timer.periodic(Duration(seconds: 1), (timer) {
+      Timer.periodic(const Duration(seconds: 1), (timer) {
         setState(() {
           if (!habitList[index][1]) {
             timer.cancel();
@@ -53,6 +55,29 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
+  void addNewHabit() {
+    setState(() {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return NewHabit(
+              controller: _controller,
+              onSave: saveNewTask,
+            );
+          });
+    });
+  }
+
+  void saveNewTask() {
+    setState(() {
+      habitList.add(
+        [_controller.text, false, 0, 1],
+      );
+      _controller.clear();
+      Navigator.of(context).pop();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,20 +95,26 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.grey[900],
       ),
       body: ListView.builder(
-          itemCount: habitList.length,
-          itemBuilder: ((context, index) {
-            return HabitTile(
-                timeGoal: habitList[index][3],
-                timeSpent: habitList[index][2],
-                habitName: habitList[index][0],
-                habitStarted: habitList[index][1],
-                ontap: () {
-                  habitStarted(index);
-                },
-                settingsTapped: () {
-                  settingOpened(index);
-                });
-          })),
+        itemCount: habitList.length,
+        itemBuilder: ((context, index) {
+          return HabitTile(
+              timeGoal: habitList[index][3],
+              timeSpent: habitList[index][2],
+              habitName: habitList[index][0],
+              habitStarted: habitList[index][1],
+              ontap: () {
+                habitStarted(index);
+              },
+              settingsTapped: () {
+                settingOpened(index);
+              });
+        }),
+      ),
+      floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            addNewHabit();
+          },
+          child: const Icon(Icons.add)),
     );
   }
 }
